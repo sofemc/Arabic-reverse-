@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>محول النص العربي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #e8cbc0 0%, #636fa4 50%, #e8cbc0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* خلفية متحركة مع دوائر هادئة */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(99, 111, 164, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(232, 203, 192, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    z-index: -2;
+  }
+
+  .app-container {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .header p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    font-weight: 300;
+  }
+
+  .input-section, .output-section {
+    margin-bottom: 30px;
+  }
+
+  .section-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #636fa4, #8b9dc3);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(99, 111, 164, 0.3);
+  }
+
+  textarea {
+    width: 100%;
+    height: 140px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.1rem;
+    resize: none;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    line-height: 1.6;
+    color: #2d3748;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: #636fa4;
+    box-shadow: 0 0 0 4px rgba(99, 111, 164, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  .controls {
+    display: flex;
+    gap: 16px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #636fa4, #8b9dc3);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 111, 164, 0.3);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #e8cbc0, #d4a574);
+    color: #4a5568;
+    box-shadow: 0 4px 15px rgba(232, 203, 192, 0.3);
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  .output-area {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 140px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    color: #2d3748;
+  }
+
+  .output-area:empty::before {
+    content: "النتيجة ستظهر هنا...";
+    color: #9ca3af;
+    font-style: italic;
+  }
+
+  .toast {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: rgba(255, 255, 255, 0.95);
+    color: #374151;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1000;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* أشكال متحركة هادئة */
+  .sunset-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .sun {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232, 203, 192, 0.3), rgba(212, 165, 116, 0.2));
+    top: 15%;
+    right: 15%;
+    position: absolute;
+    animation: glow 6s ease-in-out infinite;
+  }
+
+  .cloud {
+    width: 60px;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    position: absolute;
+    animation: drift 10s ease-in-out infinite;
+  }
+
+  .cloud:nth-child(2) {
+    top: 25%;
+    left: 25%;
+    animation-delay: 2s;
+  }
+
+  .cloud:nth-child(3) {
+    top: 35%;
+    right: 35%;
+    animation-delay: 4s;
+  }
+
+  .wave {
+    width: 100px;
+    height: 15px;
+    background: rgba(99, 111, 164, 0.2);
+    border-radius: 30px;
+    bottom: 25%;
+    left: 20%;
+    position: absolute;
+    animation: wave 8s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.05); opacity: 0.4; }
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translateX(0px); }
+    50% { transform: translateX(20px); }
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: translateY(0px) scaleX(1); }
+    50% { transform: translateY(-8px) scaleX(1.05); }
+  }
+
+  @media (max-width: 768px) {
+    .app-container {
+      padding: 24px;
+      margin: 10px;
+    }
+    .header h1 {
+      font-size: 2rem;
+    }
+    .controls {
+      flex-direction: column;
+    }
+    .btn {
+      min-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="sunset-shapes">
+  <div class="sun"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="wave"></div>
+</div>
+
+<div class="app-container">
+  <div class="header">
+    <h1>محول النص العربي</h1>
+    <p>أداة حديثة لتحويل وعكس النصوص العربية</p>
+  </div>
+
+  <div class="input-section">
+    <div class="section-label">
+      <div class="icon"></div>
+      النص المدخل
+    </div>
+    <textarea id="inputText" placeholder="اكتب النص العربي هنا..."></textarea>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" onclick="convertText()">
+      تحويل النص
+    </button>
+    <button class="btn btn-secondary" onclick="copyResult()">
+      نسخ النتيجة
+    </button>
+  </div>
+
+  <div class="output-section">
+    <div class="section-label">
+      <div class="icon"></div>
+      النتيجة
+    </div>
+    <div id="outputText" class="output-area"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast">
+  تم النسخ بنجاح! ✨
+</div>
+
+<script>
+  const shapeMap = {
+    'ا': {i:'ﺍ', m:'ﺎ', f:'ﺎ', l:'ﺎ'},
+    'أ': {i:'ﺃ', m:'ﺄ', f:'ﺄ', l:'ﺄ'},
+    'إ': {i:'ﺇ', m:'ﺈ', f:'ﺈ', l:'ﺈ'},
+    'آ': {i:'ﺁ', m:'ﺂ', f:'ﺂ', l:'ﺂ'},
+    'ب': {i:'ﺑ', m:'ﺒ', f:'ﺐ', l:'ب'},
+    'ت': {i:'ﺗ', m:'ﺘ', f:'ﺖ', l:'ت'},
+    'ث': {i:'ﺛ', m:'ﺜ', f:'ﺚ', l:'ث'},
+    'ج': {i:'ﺟ', m:'ﺠ', f:'ﺞ', l:'ج'},
+    'ح': {i:'ﺣ', m:'ﺤ', f:'ﺢ', l:'ح'},
+    'خ': {i:'ﺧ', m:'ﺨ', f:'ﺦ', l:'خ'},
+    'د': {i:'ﺩ', m:'ﺪ', f:'ﺪ', l:'د'},
+    'ذ': {i:'ﺫ', m:'ﺬ', f:'ﺬ', l:'ذ'},
+    'ر': {i:'ﺭ', m:'ﺮ', f:'ﺮ', l:'ر'},
+    'ز': {i:'ﺯ', m:'ﺰ', f:'ﺰ', l:'ز'},
+    'س': {i:'ﺳ', m:'ﺴ', f:'ﺲ', l:'س'},
+    'ش': {i:'ﺷ', m:'ﺸ', f:'ﺶ', l:'ش'},
+    'ص': {i:'ﺻ', m:'ﺼ', f:'ﺺ', l:'ص'},
+    'ض': {i:'ﺿ', m:'ﻀ', f:'ﺾ', l:'ض'},
+    'ط': {i:'ﻃ', m:'ﻄ', f:'ﻂ', l:'ط'},
+    'ظ': {i:'ﻇ', m:'ﻈ', f:'ﻆ', l:'ظ'},
+    'ع': {i:'ﻋ', m:'ﻌ', f:'ﻊ', l:'ع'},
+    'غ': {i:'ﻏ', m:'ﻐ', f:'ﻎ', l:'غ'},
+    'ف': {i:'ﻓ', m:'ﻔ', f:'ﻒ', l:'ف'},
+    'ق': {i:'ﻗ', m:'ﻘ', f:'ﻖ', l:'ق'},
+    'ك': {i:'ﻛ', m:'ﻜ', f:'ﻚ', l:'ك'},
+    'ل': {i:'ﻟ', m:'ﻠ', f:'ﻞ', l:'ل'},
+    'م': {i:'ﻣ', m:'ﻤ', f:'ﻢ', l:'م'},
+    'ن': {i:'ﻧ', m:'ﻨ', f:'ﻦ', l:'ن'},
+    'ه': {i:'ﻫ', m:'ﻬ', f:'ﻪ', l:'ه'},
+    'و': {i:'ﻭ', m:'ﻮ', f:'ﻮ', l:'و'},
+    'ؤ': {i:'ﺅ', m:'ﺆ', f:'ﺆ', l:'ؤ'},
+    'ى': {i:'ﻯ', m:'ﻰ', f:'ﻰ', l:'ى'},
+    'ي': {i:'ﻳ', m:'ﻴ', f:'ﻲ', l:'ي'},
+    'ئ': {i:'ﺋ', m:'ﺌ', f:'ﺊ', l:'ئ'},
+    'لا': {i:'ﻻ', m:'ﻼ', f:'ﻼ', l:'ﻻ'},
+    ' ': ' ',
+    'ً': 'ً', 'ٌ': 'ٌ', 'ٍ': 'ٍ', 'َ': 'َ', 'ُ': 'ُ', 'ِ': 'ِ', 'ّ': 'ّ', 'ْ': 'ْ', 'ٰ': 'ٰ'
+  };
+
+  function reshapeWord(word) {
+    if (word.length === 0) return '';
+    let result = '';
+    for (let i = 0; i < word.length; i++) {
+      const letter = word[i];
+      const prev = i > 0 ? word[i - 1] : '';
+      const next = i < word.length - 1 ? word[i + 1] : '';
+
+      if (!shapeMap[letter]) {
+        result += letter;
+        continue;
+      }
+
+      const isConnectedPrev = prev && shapeMap[prev] && prev !== ' ' && prev !== 'ا' && prev !== 'د' && prev !== 'ذ' && prev !== 'ر' && prev !== 'ز' && prev !== 'و';
+      const isConnectedNext = next && shapeMap[next] && next !== ' ' && letter !== ' ' && letter !== 'ا' && letter !== 'د' && letter !== 'ذ' && letter !== 'ر' && letter !== 'ز' && letter !== 'و';
+
+      if (letter === 'ل' && next === 'ا') {
+        result += shapeMap['لا'][isConnectedPrev ? 'm' : 'i'];
+        i++;
+        continue;
+      }
+
+      if (!isConnectedPrev && !isConnectedNext) {
+        result += shapeMap[letter].l;
+      } else if (!isConnectedPrev && isConnectedNext) {
+        result += shapeMap[letter].i;
+      } else if (isConnectedPrev && isConnectedNext) {
+        result += shapeMap[letter].m;
+      } else if (isConnectedPrev && !isConnectedNext) {
+        result += shapeMap[letter].f;
+      }
+    }
+    return result;
+  }
+
+  function convertText() {
+    const inputText = document.getElementById('inputText').value;
+    if (!inputText.trim()) return;
+    
+    const words = inputText.split(' ');
+    const reshaped = words.map(word => reshapeWord(word)).join(' ');
+    const reversed = reshaped.split('').reverse().join('');
+    document.getElementById('outputText').innerText = reversed;
+  }
+
+  function copyResult() {
+    const outputText = document.getElementById('outputText').innerText;
+    
+    if (!outputText.trim() || outputText === "النتيجة ستظهر هنا...") {
+      showToast("لا يوجد نص للنسخ! ⚠️");
+      return;
+    }
+    
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(outputText).then(() => {
+        showToast("تم النسخ بنجاح! ✨");
+      }).catch(() => {
+        fallbackCopy(outputText);
+      });
+    } else {
+      fallbackCopy(outputText);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        showToast("تم النسخ بنجاح! ✨");
+      } else {
+        showToast("فشل في النسخ! ❌");
+      }
+    } catch (err) {
+      showToast("فشل في النسخ! ❌");
+    }
+    
+    document.body.removeChild(textArea);
+  }
+
+  function showToast(message = "تم النسخ بنجاح! ✨") {
+    const toast = document.getElementById('toast');
+    toast.innerText = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2500);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'c' && document.activeElement.id !== 'inputText') {
+      e.preventDefault();
+      copyResult();
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>اختر الشكل | محول النص العربي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 50px 40px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #fff;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      flex: 1 1 220px;
+      padding: 18px 28px;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    }
+    .btn-1 {
+      background: linear-gradient(135deg, #e8cbc0 0%, #636fa4 100%);
+    }
+    .btn-2 {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>محوّل النص العربي</h1>
+    <p>اختر الشكل الذي يعجبك لبدء استخدام الأداة</p>
+
+    <div class="btn-group">
+      <button class="btn btn-1" onclick="openApp('iindex.html')">
+        الشكل الأول (هادئ)
+      </button>
+      <button class="btn btn-2" onclick="openApp('index.html')">
+        الشكل الثاني (عصري)
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function openApp(file) {
+      // فتح الملف في تبويب جديد
+      window.open(file, '_blank');
+    }
+  </script>
+
+</body>
+</html>
